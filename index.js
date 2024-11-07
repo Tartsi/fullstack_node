@@ -35,6 +35,22 @@ app.delete('/api/persons/:id', (req, res) => {
     res.json(deletedPerson);
 });
 
+app.post('/api/persons', (req, res) => {
+    const person = req.body;
+    if (!person.name || !person.number) return res.status(400).send('Name or number missing');
+
+    const existingPerson = persons.find(p => p.name === person.name);
+    if (existingPerson) return res.status(400).send('Name must be unique');
+
+    const newPerson = { 
+        id: Math.floor(Math.random() * 100000),
+        ...person 
+    };
+
+    persons = persons.concat(newPerson);
+    res.json(newPerson);
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
