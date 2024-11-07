@@ -21,6 +21,12 @@ app.get('/info', (req, res) => {
     <p>${new Date()}</p>`);
 });
 
+app.get('/api/persons/:id', (req, res) => {
+    const person = persons.find(p => p.id === parseInt(req.params.id));
+    if (!person) return res.status(404).send('Person not found');
+    res.json(person);
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
