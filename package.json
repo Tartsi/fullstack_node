@@ -11,6 +11,7 @@
   "author": "Tartsi",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.1",
     "fullstack_node": "file:",
     "morgan": "^1.10.0"
