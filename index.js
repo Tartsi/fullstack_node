@@ -65,6 +65,29 @@ app.post('/api/persons', (req, res) => {
     });
 });
 
+app.put('/api/persons/:id', (req, res, next) => {
+    const body = req.body;
+
+    Person.findOne({ name: body.name })
+    .then(existingPerson => {
+        if (existingPerson) {
+            const person = {
+                name: body.name,
+                number: body.number,
+            };
+
+            Person.findByIdAndUpdate(req.params.id, person, { new: true })
+            .then(updatedPerson => {
+                res.json(updatedPerson);
+            })
+            .catch(error => next(error));
+        } else {
+            res.status(400).json({ error: 'Name not found in phonebook' });
+        }
+    })
+    .catch(error => next(error));
+});
+
 const requestLogger = (req, res, next) => {
     console.log('Method:', req.method);
     console.log('Path:', req.path);
