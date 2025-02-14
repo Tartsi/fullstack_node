@@ -21,7 +21,7 @@ app.get('/api/persons', (req, res) => {
 
 app.get('/info', (req, res) => {
     Person.find({}).then(persons => {
-        res.send(`<p>Phonebook has info for ${persons.length} people</p>
+        res.send(`<p>Phonebook has numbers for ${persons.length} people</p>
         <p>${new Date()}</p>`);
     });
 });
