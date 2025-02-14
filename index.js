@@ -20,17 +20,25 @@ app.get('/api/persons', (req, res) => {
 });
 
 app.get('/info', (req, res) => {
-    res.send(`<p>Phonebook has info for ${persons.length} people</p>
-    <p>${new Date()}</p>`);
+    Person.find({}).then(persons => {
+        res.send(`<p>Phonebook has info for ${persons.length} people</p>
+        <p>${new Date()}</p>`);
+    });
 });
 
-app.get('/api/persons/:id', (req, res) => {
-    const person = persons.find(p => p.id === parseInt(req.params.id));
-    if (!person) return res.status(404).send('Person not found');
-    res.json(person);
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.findById(req.params.id)
+    .then(person => {
+        if (person) {
+            res.json(person);
+        } else {
+            res.status(404).end();
+        }
+    })
+    .catch(error => next(error));
 });
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndDelete(req.params.id)
     .then(result => {
         res.status(204).end();
@@ -57,14 +65,32 @@ app.post('/api/persons', (req, res) => {
     });
 });
 
-const errorHandler = (error, req, res, next) => {
-    console.error(error.message);
+const requestLogger = (req, res, next) => {
+    console.log('Method:', req.method);
+    console.log('Path:', req.path);
+    console.log('Body:', req.body);
+    console.log('---');
+    next();
+}
 
+app.use(requestLogger);
+
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'Unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
     if (error.name === 'CastError') {
-        return res.status(400).send({ error: 'Malformatted id' });
+      return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message })
     }
-
-    next(error);
+  
+    next(error)
 }
 
 app.use(errorHandler);
